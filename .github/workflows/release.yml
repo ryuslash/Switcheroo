@@ -1,0 +1,50 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*-oni-*'
+
+jobs:
+  build:
+    name: Create Release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup NuGet
+        uses: warrenbuckley/Setup-Nuget@v1
+      - name: Setup MSBuild
+        uses: warrenbuckley/Setup-MSBuild@v1
+      - name: Setup VSTest
+        uses: ./
+      - name: Restore NuGet packages
+        run: nuget restore Switcheroo.sln
+      - name: Build tests
+        run: msbuild Switcheroo.sln -p:Configuration=Release -t:Core_UnitTests
+      - name: Run tests
+        run: vstest.console.exe Core.UnitTests\bin\Release\Switcheroo.Core.UnitTests.dll /TestAdapterPath:packages\NUnitTestAdapter.2.2.0\build
+      - name: Build Switcheroo
+        run: msbuild Switcheroo.sln -p:Configuration=Release -t:Switcheroo
+      - name: Package
+        run: Powershell.exe -File ./scripts/compress.ps1 Switcheroo\bin\Release Switcheroo.zip
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./Switcheroo.zip
+          asset_name: Switcheroo.zip
+          asset_content_type: application/zip

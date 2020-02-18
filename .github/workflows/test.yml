@@ -1,0 +1,28 @@
+name: Run tests
+
+on:
+  push:
+    ignore-tags:
+      - 'v*-oni-*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup NuGet
+        uses: warrenbuckley/Setup-Nuget@v1
+      - name: Setup MSBuild
+        uses: warrenbuckley/Setup-MSBuild@v1
+      - name: Setup VStest
+        uses: ./
+      - name: Restore NuGet packages
+        run: nuget restore Switcheroo.sln
+      - name: Build tests
+        run: msbuild Switcheroo.sln -p:Configuration=Release -t:Core_UnitTests
+      - name: Build Switcheroo
+        run: msbuild Switcheroo.sln -p:Configuration=Release -t:Switcheroo
+      - name: Run tests
+        run: vstest.console.exe Core.UnitTests\bin\Release\Switcheroo.Core.UnitTests.dll /TestAdapterPath:packages\NUnitTestAdapter.2.2.0\build

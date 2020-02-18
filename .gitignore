@@ -143,7 +143,7 @@ ClientBin/
 *.dbproj.schemaview
 *.pfx
 *.publishsettings
-node_modules/
+#node_modules/
 
 # RIA/Silverlight projects
 Generated_Code/
