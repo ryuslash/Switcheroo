@@ -1,13 +1,10 @@
-name: Create Release
+name: Build, Test, Release
 
-on:
-  push:
-    tags:
-      - 'v*-oni-*'
+on: [push]
 
 jobs:
   build:
-    name: Create Release
+    name: Build
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -26,8 +23,23 @@ jobs:
         run: vstest.console.exe Core.UnitTests\bin\Release\Switcheroo.Core.UnitTests.dll /TestAdapterPath:packages\NUnitTestAdapter.2.2.0\build
       - name: Build Switcheroo
         run: msbuild Switcheroo.sln -p:Configuration=Release -t:Switcheroo
+      - name: Upload binaries for Release
+        uses: actions/upload-artifact@v1
+        with:
+          name: binaries
+          path: Switcheroo\bin\Release
+  release:
+    name: Create Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-latest
+    needs: build
+    steps:
+      - name: Download binaries from Build
+        uses: actions/download-artifact@v1
+        with:
+          name: binaries
       - name: Package
-        run: Powershell.exe -File ./scripts/compress.ps1 Switcheroo\bin\Release Switcheroo.zip
+        run: Powershell.exe -File ./scripts/compress.ps1 binaries Switcheroo.zip
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
