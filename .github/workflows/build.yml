@@ -15,6 +15,13 @@ jobs:
         uses: warrenbuckley/Setup-MSBuild@v1
       - name: Setup VSTest
         uses: ./
+      - name: Cache NuGet packages
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-nuget-packages
+        with:
+          path: packages
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/packages.config') }}
       - name: Restore NuGet packages
         run: nuget restore Switcheroo.sln
       - name: Build tests
