@@ -21,6 +21,7 @@
     </Window.CommandBindings>
 
     <Window.InputBindings>
+        <KeyBinding Command="local:MainWindow.CloseWindowCommand" Key="G" Modifiers="Ctrl" />
         <KeyBinding Command="local:MainWindow.CloseWindowCommand" Key="K" Modifiers="Ctrl" />
         <KeyBinding Command="local:MainWindow.ScrollListUpCommand" Key="P" Modifiers="Ctrl" />
         <KeyBinding Command="local:MainWindow.ScrollListDownCommand" Key="N" Modifiers="Ctrl" />
@@ -175,7 +176,7 @@
                                 </Image>
                                 <TextBlock local:FormattedTextAttribute.FormattedText="{Binding Path=FormattedTitle}"
                                            Grid.Row="0" Grid.Column="1" Margin="3,0">
-                                   
+
                                 </TextBlock>
                                 <TextBlock
                                     local:FormattedTextAttribute.FormattedText="{Binding Path=FormattedProcessTitle}"
